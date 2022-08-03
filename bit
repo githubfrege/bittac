@@ -13,11 +13,30 @@ namespace TicTacToeConsole
         const int Cols = DefaultNum;
         const int Rows = DefaultNum;
         const int NInARow = DefaultNum;
-        public static int Desired;
         public static List<long> Diagonals;
         public static long[] HorizontalOptions;
         public static long[] VerticalOptions;
 
+        public static int MaxConsecutiveOnes(long x)
+        {
+
+            // Initialize result
+            int count = 0;
+
+            // Count the number of iterations
+            // to reach x = 0.
+            while (x != 0)
+            {
+
+                // This operation reduces length
+                // of every sequence of 1s by one.
+                x = (x & (x << 1));
+
+                count++;
+            }
+
+            return count;
+        }
         public static void GetStraightValues()
         {
             long[] horizontal = new long[Rows];
@@ -47,21 +66,14 @@ namespace TicTacToeConsole
             }
             VerticalOptions = vertical;
         }
+    
         public static long PlaceMark(long marks, int row, int col)
         {
             int idx = ((Cols * (row - 1)) + col);
-            marks = marks | (1 << idx);
+            marks = marks | (long)(1 << idx);
             return marks;
         }
-        public static void SetDesiredBits()
-        {
-            int desired = 0;
-            for (int i = 1; i <= NInARow; i++)
-            {
-                desired = desired | 1 << i;
-            }
-            Desired = desired;
-        }
+
         public static void GetDiagonals(bool anti)
         {
             List<long> corners = new List<long>();
@@ -72,7 +84,7 @@ namespace TicTacToeConsole
             }
             for (int i = 1; i <= Cols; i++)
             {
-                dontTouch |= (1 << ((Cols * (Rows - 1)) + i) );
+                dontTouch |= (long)(1 << ((Cols * (Rows - 1)) + i) );
             }
             if (anti)
             {
@@ -80,7 +92,7 @@ namespace TicTacToeConsole
                 for (int i = 1; i <= Rows; i++)
                 {
                     corners.Add(1 << (1 + (Cols * i)) + (Cols - 1));
-                    dontTouch |= (1 << (1 + (Cols * i)));
+                    dontTouch |= (long)(1 << (1 + (Cols * i)));
                 }
                 foreach (long corner in corners)
                 {
@@ -110,7 +122,7 @@ namespace TicTacToeConsole
                 for (int i = 1; i <= Rows; i++)
                 {
                     corners.Add(1 << (1 + (Cols * i)));
-                    dontTouch |= (1 << (1 + (Cols * i)) + (Cols - 1));
+                    dontTouch |= (long)(1 << (1 + (Cols * i)) + (Cols - 1));
                 }
                
                 foreach (long corner in corners)
@@ -143,21 +155,41 @@ namespace TicTacToeConsole
 
         public static bool HasWon(long marks)
         {
-            //check horizontal win
-            foreach (long option in )
-            foreach (long diagonal in Diagonals)
+            //check horizontal
+           foreach (long option in HorizontalOptions)
             {
-                
+                if (MaxConsecutiveOnes((marks & option)) >= NInARow)
+                {
+                    return true;
+                }
             }
-            
+            foreach (long option in VerticalOptions)
+            {
+                if (MaxConsecutiveOnes((marks & option)) >= NInARow)
+                {
+                    return true;
+                }
+            }
+            foreach (long option in Diagonals)
+            {
+                if (MaxConsecutiveOnes((marks & option)) >= NInARow)
+                {
+                    return true;
+                }
+            }
+            return false;
+
             //check vertical win
+
+        }
+        public static void RenderBoard()
+        {
 
         }
         static void Main(string[] args)
         {
             long playerMarks = 0;
             long opponentMarks = 0;
-            SetDesiredBits();
             GetDiagonals(true);
             GetDiagonals(false);
             GetStraightValues();
@@ -165,7 +197,7 @@ namespace TicTacToeConsole
             long myMark = PlaceMark(playerMarks, Console.ReadLine()[0], Console.ReadLine()[1]);
             if ((myMark & (playerMarks | opponentMarks)) == 0)
             {
-                playerMarks = myMark;
+                playerMarks |= myMark;
             }
 
 
