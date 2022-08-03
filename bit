@@ -17,33 +17,56 @@ namespace TicTacToeConsole
         
         public static long PlaceMark(long marks, int row, int col)
         {
-            int idx = (row-1)  *(col-1);
+            int idx = row*col;
             marks = marks | (1 << idx);
             return marks;
         }
         public static void SetDesiredBits()
         {
             int desired = 0;
-            for (int i = 0; i < NInARow; i++)
+            for (int i = 1; i <= NInARow; i++)
             {
                 desired = desired | 1 << i;
             }
             Desired = desired;
         }
-        public static void GetDiagonals(int rows, int cols, bool anti)
+        public static void GetDiagonals(bool anti)
         {
-            List<long> corners = new List<long>();
-            for (int i = 0;i<cols;i++) {
-                corners.Add(1 << i);
+            long corners = 0;
+            long dontTouch = 0;
+            List<long> diagonals = new List<long>();
+            for (int i = 1; i <= Cols; i++) {
+                corners |=  (1 << i);
+            }
+            for (int i = 1; i <= Cols; i++)
+            {
+                dontTouch |= (1 << ((Cols * (Rows - 1)) + i) );
             }
             if (anti)
-
             {
-
+  
+                for (int i = 1; i <= Rows; i++)
+                {
+                    corners |= (1 << (1 + (Cols * i)) + (Cols - 1));
+                    dontTouch |= (1 << (1 + (Cols * i)));
+                }
             }
             else
             {
-               
+                for (int i = 1; i <= Rows; i++)
+                {
+                    corners |= (1 << (1 + (Cols * i)));
+                    dontTouch |= (1 << (1 + (Cols * i)) + (Cols - 1));
+                }
+                for (int i = 1; i <= Rows + Cols - 1; i++)
+                {
+                    if ((corners & (1 << i)) != 0)
+                    {
+                        long diagonal = (corners & (1 << i));
+                        while (diagonal & )
+                    }
+                }
+
 
             }
 
@@ -53,9 +76,9 @@ namespace TicTacToeConsole
 
             int[] validator = new int[foo];
             validator[0] = 0;
-            for (int i = 0; i < foo; i++)
+            for (int i = 1; i <= foo; i++)
             {
-               for (int j = 0; j < bar; j++)
+               for (int j = 1; j <= bar; j++)
                 {
                     long currentVal = marks & (1 << (i * j));
                     if (currentVal != 0)
