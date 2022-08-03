@@ -1,0 +1,111 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+
+namespace TicTacToeConsole
+{
+   
+    static class Program
+    {
+        const int DefaultNum = 3; //all numbers based on this, for convenience
+        const int Cols = DefaultNum;
+        const int Rows = DefaultNum;
+        const int NInARow = DefaultNum;
+        public static  int Desired;
+        
+        public static long PlaceMark(long marks, int row, int col)
+        {
+            int idx = (row-1)  *(col-1);
+            marks = marks | (1 << idx);
+            return marks;
+        }
+        public static void SetDesiredBits()
+        {
+            int desired = 0;
+            for (int i = 0; i < NInARow; i++)
+            {
+                desired = desired | 1 << i;
+            }
+            Desired = desired;
+        }
+        public static void GetDiagonals(int rows, int cols, bool anti)
+        {
+            List<long> corners = new List<long>();
+            for (int i = 0;i<cols;i++) {
+                corners.Add(1 << i);
+            }
+            if (anti)
+
+            {
+
+            }
+            else
+            {
+               
+
+            }
+
+        }
+        public static bool CheckStraightLine( this long marks, int foo, int bar)
+        {
+
+            int[] validator = new int[foo];
+            validator[0] = 0;
+            for (int i = 0; i < foo; i++)
+            {
+               for (int j = 0; j < bar; j++)
+                {
+                    long currentVal = marks & (1 << (i * j));
+                    if (currentVal != 0)
+                    {
+                        validator[i] = validator[i] | (int)currentVal;
+                    }
+                    
+                }
+            }
+          
+            for (int i = 0; i < Rows; i++)
+            {
+                if ((validator[i] & Desired) != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static bool HasWon(long marks)
+        {
+            //check horizontal win
+            if (marks.CheckStraightLine(Rows, Cols))
+            {
+                return true;
+            }
+            else if (marks.CheckStraightLine(Cols, Rows))
+            {
+                return true;
+            }
+            
+            //check vertical win
+
+        }
+        static void Main(string[] args)
+        {
+            long playerMarks = 0;
+            long opponentMarks = 0;
+            SetDesiredBits();
+            Console.WriteLine("make your mark");
+            long myMark = PlaceMark(playerMarks, Console.ReadLine()[0], Console.ReadLine()[1]);
+            if ((myMark & (playerMarks | opponentMarks)) == 0)
+            {
+                playerMarks = myMark;
+            }
+
+
+          
+            
+            
+        }
+    }
+}
