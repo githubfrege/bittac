@@ -13,11 +13,30 @@ namespace TicTacToeConsole
         const int Cols = DefaultNum;
         const int Rows = DefaultNum;
         const int NInARow = DefaultNum;
-        public static  int Desired;
-        
+        public static int Desired;
+        public static List<long> Diagonals;
+        public static long[] ValidatorHorizontal;
+        public static long[] ValidatorVertical;
+
+        public static void GetValidator(int foo, int bar, long[] vali)
+        {
+            int[] validator = new int[foo];
+            for (int i = 1; i <= foo; i++)
+            {
+                for (int j = 1; j <= bar; j++)
+                {
+                    long currentVal = (1 << (i * j));
+                    if (currentVal != 0)
+                    {
+                        validator[i] = validator[i] | (int)currentVal;
+                    }
+
+                }
+            }
+        }
         public static long PlaceMark(long marks, int row, int col)
         {
-            int idx = row*col;
+            int idx = ((Cols * (row - 1)) + col);
             marks = marks | (1 << idx);
             return marks;
         }
@@ -32,11 +51,11 @@ namespace TicTacToeConsole
         }
         public static void GetDiagonals(bool anti)
         {
-            long corners = 0;
+            List<long> corners = new List<long>();
             long dontTouch = 0;
             List<long> diagonals = new List<long>();
             for (int i = 1; i <= Cols; i++) {
-                corners |=  (1 << i);
+                corners.Add(1 << i);
             }
             for (int i = 1; i <= Cols; i++)
             {
@@ -47,56 +66,73 @@ namespace TicTacToeConsole
   
                 for (int i = 1; i <= Rows; i++)
                 {
-                    corners |= (1 << (1 + (Cols * i)) + (Cols - 1));
+                    corners.Add(1 << (1 + (Cols * i)) + (Cols - 1));
                     dontTouch |= (1 << (1 + (Cols * i)));
+                }
+                foreach (long corner in corners)
+                {
+                    long diagonal = corner;
+                    int diagNum = (int)(double)(Math.Log(diagonal) / Math.Log(2.0));
+                    long newValue = 0;
+                    while ((newValue & dontTouch) == 0)
+                    {
+                        newValue = (1 << ((diagNum - 1) + Cols));
+                        if ((newValue & dontTouch) == 0)
+                        {
+                            diagonal |= newValue;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    diagonals.Add(diagonal);
+
+
+
                 }
             }
             else
             {
                 for (int i = 1; i <= Rows; i++)
                 {
-                    corners |= (1 << (1 + (Cols * i)));
+                    corners.Add(1 << (1 + (Cols * i)));
                     dontTouch |= (1 << (1 + (Cols * i)) + (Cols - 1));
                 }
-                for (int i = 1; i <= Rows + Cols - 1; i++)
+               
+                foreach (long corner in corners)
                 {
-                    if ((corners & (1 << i)) != 0)
+                    long diagonal = corner;
+                    int diagNum = (int)(double)(Math.Log(diagonal) / Math.Log(2.0));
+                    long newValue = 0;
+                    while ((newValue & dontTouch) == 0)
                     {
-                        long diagonal = (corners & (1 << i));
-                        while (diagonal & )
+                        newValue = (1 << ((diagNum + 1) + Cols));
+                        if ((newValue & dontTouch) == 0)
+                        {
+                            diagonal |= newValue;
+                        }
+                        else
+                        {
+                            return;
+                        }
                     }
+
+                    diagonals.Add(diagonal);
                 }
 
 
             }
+            Diagonals = diagonals;
 
         }
+
         public static bool CheckStraightLine( this long marks, int foo, int bar)
         {
 
-            int[] validator = new int[foo];
-            validator[0] = 0;
-            for (int i = 1; i <= foo; i++)
-            {
-               for (int j = 1; j <= bar; j++)
-                {
-                    long currentVal = marks & (1 << (i * j));
-                    if (currentVal != 0)
-                    {
-                        validator[i] = validator[i] | (int)currentVal;
-                    }
-                    
-                }
-            }
+            
           
-            for (int i = 0; i < Rows; i++)
-            {
-                if ((validator[i] & Desired) != 0)
-                {
-                    return true;
-                }
-            }
-            return false;
+           
         }
         public static bool HasWon(long marks)
         {
@@ -109,6 +145,13 @@ namespace TicTacToeConsole
             {
                 return true;
             }
+            foreach (long diagonal in Diagonals)
+            {
+                for (int i = 0; i < HammingWeight(diagonal); i++)
+                {
+
+                }
+            }
             
             //check vertical win
 
@@ -118,6 +161,10 @@ namespace TicTacToeConsole
             long playerMarks = 0;
             long opponentMarks = 0;
             SetDesiredBits();
+            GetDiagonals(true);
+            GetDiagonals(false);
+            GetValidator(Cols, Rows);
+            GetValidator(Rows, Cols);
             Console.WriteLine("make your mark");
             long myMark = PlaceMark(playerMarks, Console.ReadLine()[0], Console.ReadLine()[1]);
             if ((myMark & (playerMarks | opponentMarks)) == 0)
