@@ -15,24 +15,37 @@ namespace TicTacToeConsole
         const int NInARow = DefaultNum;
         public static int Desired;
         public static List<long> Diagonals;
-        public static long[] ValidatorHorizontal;
-        public static long[] ValidatorVertical;
+        public static long[] HorizontalOptions;
+        public static long[] VerticalOptions;
 
-        public static void GetValidator(int foo, int bar, long[] vali)
+        public static void GetStraightValues()
         {
-            int[] validator = new int[foo];
-            for (int i = 1; i <= foo; i++)
+            long[] horizontal = new long[Rows];
+            for (int i = 1; i <= Rows; i++)
             {
-                for (int j = 1; j <= bar; j++)
+                long rowValue = 0;
+                for (int j = 1; j <= Cols; j++)
                 {
-                    long currentVal = (1 << (i * j));
-                    if (currentVal != 0)
-                    {
-                        validator[i] = validator[i] | (int)currentVal;
-                    }
+                    long currentVal = (1 << ((Cols * (i - 1)) + j));
+                    rowValue |= currentVal;
 
                 }
+                horizontal[i - 1] = rowValue;
             }
+            HorizontalOptions = horizontal;
+            long[] vertical = new long[Cols];
+            for (int i = 1; i <= Cols; i++)
+            {
+                long colValue = 0;
+                for (int j = 1; j <= Rows; j++)
+                {
+                    long currentVal = (1 << ((Cols * (j - 1)) + i));
+                    colValue |= currentVal;
+
+                }
+                vertical[i - 1] = colValue;
+            }
+            VerticalOptions = vertical;
         }
         public static long PlaceMark(long marks, int row, int col)
         {
@@ -127,30 +140,14 @@ namespace TicTacToeConsole
 
         }
 
-        public static bool CheckStraightLine( this long marks, int foo, int bar)
-        {
 
-            
-          
-           
-        }
         public static bool HasWon(long marks)
         {
             //check horizontal win
-            if (marks.CheckStraightLine(Rows, Cols))
-            {
-                return true;
-            }
-            else if (marks.CheckStraightLine(Cols, Rows))
-            {
-                return true;
-            }
+            foreach (long option in )
             foreach (long diagonal in Diagonals)
             {
-                for (int i = 0; i < HammingWeight(diagonal); i++)
-                {
-
-                }
+                
             }
             
             //check vertical win
@@ -163,8 +160,7 @@ namespace TicTacToeConsole
             SetDesiredBits();
             GetDiagonals(true);
             GetDiagonals(false);
-            GetValidator(Cols, Rows);
-            GetValidator(Rows, Cols);
+            GetStraightValues();
             Console.WriteLine("make your mark");
             long myMark = PlaceMark(playerMarks, Console.ReadLine()[0], Console.ReadLine()[1]);
             if ((myMark & (playerMarks | opponentMarks)) == 0)
