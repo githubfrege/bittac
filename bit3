@@ -12,7 +12,7 @@ namespace TicTacToeConsole
         const int DefaultNum = 3; //all numbers based on this, for convenience
         const int Cols = DefaultNum;
         const int Rows = DefaultNum;
-        const int NInARow = DefaultNum;
+        const int NInARow = 3;
         public static List<List<int>> Diagonals = new List<List<int>>();
         public static long[] HorizontalOptions;
         public static List<List<int>> VerticalNumbers = new List<List<int>>();
@@ -72,7 +72,9 @@ namespace TicTacToeConsole
     
         public static long Mark(int row, int col)
         {
-            int idx = ((Cols * (row - 1)) + col);
+          
+            int idx = (Cols * (row - 1)) + col;
+            
             return (long)(1 << idx);
         }
        
@@ -87,7 +89,6 @@ namespace TicTacToeConsole
 
                 while (startcol >= 0 && startrow < Rows)
                 {
-                    Console.Write(A[startrow, startcol] + " ");
                     myDiagonal.Add(A[startrow, startcol]);
                     startcol--;
                     startrow++;
@@ -107,7 +108,6 @@ namespace TicTacToeConsole
 
                 while (startrow < Rows && startcol >= 0)
                 {
-                    Console.Write(A[startrow, startcol] + " ");
                     myDiagonal.Add(A[startrow, startcol]);
                     startcol--;
                     startrow++;
@@ -162,7 +162,6 @@ namespace TicTacToeConsole
                 {
                     Diagonals.Add(myDiagonal);
                 }
-                Console.WriteLine();
             }
         }
         public static int[,] GetMatrix()
@@ -187,17 +186,22 @@ namespace TicTacToeConsole
             for (int i = 0; i < Cols; i++)
             {
                 long myColumn = NewLineMask >> i;
-                Console.WriteLine(Convert.ToString(myColumn, toBase: 2));
                 List<int> numbersForColumn = new List<int>();
                 foreach (int val in Values)
                 {
                    if ((myColumn & (1 <<val)) != 0)
                    {
                         numbersForColumn.Add(val);
+                        
                    }
                         
                 }
                 vertical.Add(numbersForColumn);
+                foreach(int num in numbersForColumn)
+                {
+                    Console.Write(" " + num);
+                }
+                Console.WriteLine();
                
 
             }
@@ -205,31 +209,6 @@ namespace TicTacToeConsole
         }
         public static bool HasWon(long marks)
         {
-            //check horizontal
-            /*foreach (long option in HorizontalOptions)
-             {
-                 if (MaxHorizontalOnes((marks & option)) >= NInARow)
-                 {
-                     return true;
-                 }
-             }
-             foreach (long option in VerticalOptions)
-             {
-                 if (MaxConsecutiveOnes((marks & option)) >= NInARow)
-                 {
-                     return true;
-                 }
-             }
-             foreach (long option in DiagonalOptions)
-             {
-                 Console.WriteLine("option:" + Convert.ToString(option, toBase: 2) +  "  marks:" + Convert.ToString(marks, toBase: 2));
-
-                 if (MaxConsecutiveOnes((marks & option)) >= NInARow)
-                 {
-                     return true;
-                 }
-             }
-             return false;*/
             //check horizontal
             foreach (long option in HorizontalOptions)
             {
@@ -314,8 +293,8 @@ namespace TicTacToeConsole
         public static void Play(ref long marks, long otherMarks)
         {
             string str = Console.ReadLine();
-            long myMark = Mark(str[0], str[1]);
-          
+            long myMark = Mark(int.Parse(str[0].ToString()), int.Parse(str[1].ToString()));
+            Console.WriteLine(Convert.ToString(myMark, toBase: 2));
             if ((myMark & (marks | otherMarks)) == 0)
             {
                 marks |= myMark;
@@ -343,16 +322,8 @@ namespace TicTacToeConsole
             Values = myValues;
             GetDiagonalOptions();
             GetVerticalNumbers();
-            foreach (List<int> list in VerticalNumbers) { 
-                foreach (int num in list)
-                {
-                    Console.Write(num);
-                }
-                Console.WriteLine();
-            }
-           
-            Console.WriteLine(Convert.ToString(NewLineMask, toBase: 2));
-            Console.WriteLine(Convert.ToString(NewLineMask >> 2, toBase: 2));
+ 
+
             while (true)
             {
                 Console.WriteLine("make your mark");
