@@ -1,0 +1,361 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Diagnostics;
+
+namespace TicTacToeConsole
+{
+   
+    static class Program
+    {
+        const int DefaultNum = 3; //all numbers based on this, for convenience
+        const int Cols = DefaultNum;
+        const int Rows = DefaultNum;
+        const int NInARow = DefaultNum;
+        /*public static List<List<int>> Diagonals = new List<List<int>>();
+        public static List<long> DiagonalOptions = new List<long>();*/
+        public static long[] HorizontalOptions;
+        public static List<List<int>> VerticalNumbers = new List<List<int>>();
+        //public static long[] VerticalOptions;
+        public static long NewLineMask;
+        public static int[] Values;
+        public static int HammingWeight(long n)
+        {
+            int ret = 0;
+            while (n != 0)
+            {
+                n &= (n - 1);
+                ret++;
+            }
+            return ret;
+        }
+       public static int MaxConsecutiveOnes(long x)
+        {
+
+            // Initialize result
+            int count = 0;
+
+            // Count the number of iterations
+            // to reach x = 0.
+            while (x != 0)
+            {
+
+                // This operation reduces length
+                // of every sequence of 1s by one.
+                x = (x & (x << 1));
+
+                count++;
+            }
+
+            return count;
+        }
+        
+        public static void GetHorizontalOptions()
+        {
+            long[] horizontal = new long[Rows];
+            for (int i = 1; i <= Rows; i++)
+            {
+                long rowValue = 0;
+                for (int j = 1; j <= Cols; j++)
+                {
+                    long currentVal = (1 << ((Cols * (i - 1)) + j));
+                    rowValue |= currentVal;
+
+                }
+                horizontal[i - 1] = rowValue;
+                
+
+            }
+            HorizontalOptions = horizontal;
+
+        }
+    
+        public static long Mark(int row, int col)
+        {
+            int idx = ((Cols * (row - 1)) + col);
+            return (long)(1 << idx);
+        }
+       
+        /*static void antidiagonal(int[,] A)
+        {
+           
+            // For each column start row is 0
+            for (int col = 0; col < Cols; col++)
+            {
+                List<int> myDiagonal = new List<int>();
+                int startcol = col, startrow = 0;
+
+                while (startcol >= 0 && startrow < Rows)
+                {
+                    Console.Write(A[startrow, startcol] + " ");
+                    myDiagonal.Add(A[startrow, startcol]);
+                    startcol--;
+                    startrow++;
+                }
+                if (myDiagonal.Count() >= NInARow)
+                {
+                    Diagonals.Add(myDiagonal);
+                }
+              
+            }
+
+            // For each row start column is N-1
+            for (int row = 1; row < Rows; row++)
+            {
+                List<int> myDiagonal = new List<int>();
+                int startrow = row, startcol = Rows - 1;
+
+                while (startrow < Rows && startcol >= 0)
+                {
+                    Console.Write(A[startrow, startcol] + " ");
+                    myDiagonal.Add(A[startrow, startcol]);
+                    startcol--;
+                    startrow++;
+                }
+                if (myDiagonal.Count() >= NInARow)
+                {
+                    Diagonals.Add(myDiagonal);
+                }
+            }
+        }*/
+        /*public static void GetDiagonalOptions()
+        {
+            int[,] matrix = GetMatrix();
+            antidiagonal(matrix);
+            diagonal(matrix);
+            foreach (List<int> diag in Diagonals)
+            {
+                long diagLong = 0;
+                foreach (int num in diag)
+                {
+                    diagLong |= (long)(1 << num);
+                }
+                DiagonalOptions.Add(diagLong);
+            }
+        }
+        static void diagonal(int[,] A)
+        {
+
+
+            // For each column start row is 0
+            for (int col = 0; col < Cols; col++)
+            {
+                List<int> myDiagonal = new List<int>();
+                int startcol = col, startrow = 0;
+
+                while (startcol < Cols && startrow < Rows)
+                {
+                    myDiagonal.Add(A[startrow, startcol]);
+                    startcol++;
+                    startrow++;
+                }
+                if (myDiagonal.Count() >= NInARow)
+                {
+                    Diagonals.Add(myDiagonal);
+
+                }
+            }
+
+            // For each row start column is 0
+            for (int row = 1; row < Rows; row++)
+            {
+                int startrow = row, startcol = 0;
+                List<int> myDiagonal = new List<int>();
+                while (startrow < Rows && startcol < Rows)
+                {
+                    myDiagonal.Add(A[startrow, startcol]);
+                    startcol++;
+                    startrow++;
+                }
+                if (myDiagonal.Count() >= NInARow)
+                {
+                    Diagonals.Add(myDiagonal);
+                }
+                Console.WriteLine();
+            }
+        }
+        public static int[,] GetMatrix()
+        {
+            int[,] myMatrix = new int[Cols, Rows];
+            int n = 0;
+            for (int i = 0; i < Cols; i++)
+            {
+                for (int j = 0; j < Rows; j++)
+                {
+                    n++;
+                    myMatrix[i, j] = n;
+                }
+
+
+            }
+            return myMatrix;
+        }*/
+        public static void GetVerticalNumbers()
+        {
+            List<List<int>> vertical = new List<List<int>>();
+            for (int i = 0; i < Cols; i++)
+            {
+                long myColumn = NewLineMask >> i;
+                Console.WriteLine(Convert.ToString(myColumn, toBase: 2));
+                List<int> numbersForColumn = new List<int>();
+                foreach (int val in Values)
+                {
+                   if ((myColumn & (1 <<val)) != 0)
+                   {
+                        numbersForColumn.Add(val);
+                   }
+                        
+                }
+                vertical.Add(numbersForColumn);
+               
+
+            }
+            VerticalNumbers = vertical;
+        }
+        public static bool HasWon(long marks)
+        {
+            //check horizontal
+            /*foreach (long option in HorizontalOptions)
+             {
+                 if (MaxHorizontalOnes((marks & option)) >= NInARow)
+                 {
+                     return true;
+                 }
+             }
+             foreach (long option in VerticalOptions)
+             {
+                 if (MaxConsecutiveOnes((marks & option)) >= NInARow)
+                 {
+                     return true;
+                 }
+             }
+             foreach (long option in DiagonalOptions)
+             {
+                 Console.WriteLine("option:" + Convert.ToString(option, toBase: 2) +  "  marks:" + Convert.ToString(marks, toBase: 2));
+
+                 if (MaxConsecutiveOnes((marks & option)) >= NInARow)
+                 {
+                     return true;
+                 }
+             }
+             return false;*/
+            //check horizontal
+            foreach (long option in HorizontalOptions)
+            {
+                if (MaxConsecutiveOnes((marks & option)) >= NInARow)
+                {
+                    return true;
+                }
+            }
+            foreach (List<int> column in VerticalNumbers)
+            {
+                int adj = 0;
+                foreach (int value in column)
+                {
+                    if ((marks & (1 << value)) != 0)
+                    {
+                        adj++;
+                    }
+                    else
+                    {
+                        adj = 0;
+                    }
+                }
+                if (adj >= NInARow)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+            //check vertical win
+
+        }
+        public static void GenerateNewLineMask()
+        {
+            long mask = 0;
+            for (int i = 1; i <= Rows; i++)
+            {
+                mask |= (long)(1 << (i * Cols));
+            }
+            NewLineMask = mask;
+        }
+        public static void RenderBoard(long marks, string symbol)
+        {
+
+            for (int i = 0; i < Rows * Cols; i++)
+            {
+
+                if ((NewLineMask & (1 << (i))) != 0)
+                {
+                    Console.WriteLine("\n");
+                    
+                }
+                if ((marks & (1 << (i + 1))) != 0)
+                {
+                    Console.Write(symbol);
+                }
+                else
+                {
+                    Console.Write("#");
+                }
+            }
+            
+        }
+        public static void Play(ref long marks, long otherMarks)
+        {
+            string str = Console.ReadLine();
+            long myMark = Mark(str[0], str[1]);
+          
+            if ((myMark & (marks | otherMarks)) == 0)
+            {
+                marks |= myMark;
+            }
+            RenderBoard(marks, "O");
+            if (HasWon(marks))
+            {
+                Console.WriteLine("You won!");
+            }
+        }
+        static void Main(string[] args)
+        {
+            long playerMarks = 0;
+            long opponentMarks = 0;
+            GetHorizontalOptions();
+            GenerateNewLineMask();
+
+            int[] myValues = new int[Rows * Cols];
+            int idx = 0;
+            for (int i = 1; i <= Rows * Cols; i++)
+            {
+                myValues[idx] = i;
+                idx++;
+            }
+            Values = myValues;
+
+            GetVerticalNumbers();
+            foreach (List<int> list in VerticalNumbers) { 
+                foreach (int num in list)
+                {
+                    Console.Write(num);
+                }
+                Console.WriteLine();
+            }
+           
+            Console.WriteLine(Convert.ToString(NewLineMask, toBase: 2));
+            Console.WriteLine(Convert.ToString(NewLineMask >> 2, toBase: 2));
+            while (true)
+            {
+                Console.WriteLine("make your mark");
+                Play(ref playerMarks, opponentMarks);
+            }
+            
+            
+
+          
+            
+            
+        }
+    }
+}
