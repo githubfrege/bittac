@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Diagnostics;
 
 namespace TicTacToeConsole
 {
@@ -16,7 +16,17 @@ namespace TicTacToeConsole
         public static List<long> Diagonals;
         public static long[] HorizontalOptions;
         public static long[] VerticalOptions;
-
+        public static long NewLineMask;
+        public static int HammingWeight(long n)
+        {
+            int ret = 0;
+            while (n != 0)
+            {
+                n &= (n - 1);
+                ret++;
+            }
+            return ret;
+        }
         public static int MaxConsecutiveOnes(long x)
         {
 
@@ -50,6 +60,8 @@ namespace TicTacToeConsole
 
                 }
                 horizontal[i - 1] = rowValue;
+                
+
             }
             HorizontalOptions = horizontal;
             long[] vertical = new long[Cols];
@@ -63,6 +75,7 @@ namespace TicTacToeConsole
 
                 }
                 vertical[i - 1] = colValue;
+                
             }
             VerticalOptions = vertical;
         }
@@ -81,11 +94,14 @@ namespace TicTacToeConsole
             List<long> diagonals = new List<long>();
             for (int i = 1; i <= Cols; i++) {
                 corners.Add(1 << i);
+                
             }
             for (int i = 1; i <= Cols; i++)
             {
-                dontTouch |= (long)(1 << ((Cols * (Rows - 1)) + i) );
+                dontTouch |= (long)(1 << ((Cols * (Rows - 1)) + i));
             }
+           
+           
             if (anti)
             {
   
@@ -94,27 +110,37 @@ namespace TicTacToeConsole
                     corners.Add(1 << (1 + (Cols * i)) + (Cols - 1));
                     dontTouch |= (long)(1 << (1 + (Cols * i)));
                 }
+                /*Debug.WriteLine(Convert.ToString(corners[0] | corners[1] | corners[2] | corners[3] | corners[4], toBase: 2));
+                Debug.WriteLine(Convert.ToString(dontTouch, toBase: 2));*/
                 foreach (long corner in corners)
                 {
+                    
                     long diagonal = corner;
                     int diagNum = (int)(double)(Math.Log(diagonal) / Math.Log(2.0));
+                    Debug.WriteLine("diagnum" + diagNum);
                     long newValue = 0;
+                    int idx = 1;
                     while ((newValue & dontTouch) == 0)
                     {
-                        newValue = (1 << ((diagNum - 1) + Cols));
+                        newValue = (1 << (diagNum + (Cols * idx) - idx));
+                        Debug.WriteLine($"new value:{(int)(double)(Math.Log(newValue) / Math.Log(2.0))}");
                         if ((newValue & dontTouch) == 0)
                         {
                             diagonal |= newValue;
                         }
                         else
                         {
-                            return;
+                            diagonal |= newValue;
+                            string str = Convert.ToString(diagonal,toBase:2);
+                            if (str.Length == 10)
+                            {
+                                diagonals.Add(diagonal);
+                                Debug.WriteLine(Convert.ToString(diagonal, toBase: 2));
+                            }
+                            
                         }
+                        idx++;
                     }
-                    diagonals.Add(diagonal);
-
-
-
                 }
             }
             else
@@ -129,23 +155,31 @@ namespace TicTacToeConsole
                 {
                     long diagonal = corner;
                     int diagNum = (int)(double)(Math.Log(diagonal) / Math.Log(2.0));
+                    Debug.WriteLine("diagnum" + diagNum);
                     long newValue = 0;
+                    int idx = 1;
                     while ((newValue & dontTouch) == 0)
                     {
-                        newValue = (1 << ((diagNum + 1) + Cols));
+                        newValue = (1 << (diagNum + (Cols * idx) + idx));
+                        Debug.WriteLine($"new value:{(int)(double)(Math.Log(newValue) / Math.Log(2.0))}");
                         if ((newValue & dontTouch) == 0)
                         {
                             diagonal |= newValue;
                         }
                         else
                         {
-                            return;
+                            diagonal |= newValue;
+                            string str = Convert.ToString(diagonal, toBase: 2);
+                            if (str.Length == 10)
+                            {
+                                diagonals.Add(diagonal);
+                                Debug.WriteLine(Convert.ToString(diagonal, toBase: 2));
+                            }
+
                         }
+                        idx++;
                     }
-
-                    diagonals.Add(diagonal);
                 }
-
 
             }
             Diagonals = diagonals;
@@ -182,24 +216,48 @@ namespace TicTacToeConsole
             //check vertical win
 
         }
-        public static void RenderBoard()
+        public static void GenerateNewLineMask()
         {
-
+            long mask = 0;
+            for (int i = 1; i < Rows; i++)
+            {
+                mask |= (long)(1 << (i * Cols));
+            }
+        }
+        public static void RenderBoard(long marks, string symbol)
+        {
+            for (int i = 0; i < Rows * Cols; i++)
+            {
+                if ((NewLineMask & (1 << i)) != 0)
+                {
+                    Console.WriteLine("\n");
+                }
+                else if ((marks & (1 << i)) != 0)
+                {
+                    Console.Write(symbol);
+                }
+                else
+                {
+                    Console.Write("#");
+                }
+            }
+            
         }
         static void Main(string[] args)
         {
             long playerMarks = 0;
             long opponentMarks = 0;
-            GetDiagonals(true);
+           GetDiagonals(true);
             GetDiagonals(false);
             GetStraightValues();
+            GenerateNewLineMask();
             Console.WriteLine("make your mark");
             long myMark = PlaceMark(playerMarks, Console.ReadLine()[0], Console.ReadLine()[1]);
             if ((myMark & (playerMarks | opponentMarks)) == 0)
             {
                 playerMarks |= myMark;
             }
-
+            RenderBoard(playerMarks, "O");
 
           
             
