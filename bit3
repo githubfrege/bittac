@@ -9,7 +9,7 @@ namespace TicTacToeConsole
    
     static class Program
     {
-        const int DefaultNum = 3; //all numbers based on this, for convenience
+        const int DefaultNum = 4; //all numbers based on this, for convenience
         const int Cols = DefaultNum;
         const int Rows = DefaultNum;
         const int NInARow = 3;
@@ -226,16 +226,18 @@ namespace TicTacToeConsole
                     if ((marks & (1 << value)) != 0)
                     {
                         adj++;
+                        if (adj >= NInARow)
+                        {
+                            return true;
+                        }
+                        Console.WriteLine(adj);
                     }
                     else
                     {
                         adj = 0;
                     }
                 }
-                if (adj >= NInARow)
-                {
-                    return true;
-                }
+                
             }
             //check diagonals
             foreach (List<int> diagonal in Diagonals)
@@ -246,16 +248,17 @@ namespace TicTacToeConsole
                     if ((marks & (1 << value)) != 0)
                     {
                         adj++;
+                        if (adj >= NInARow)
+                        {
+                            return true;
+                        }
                     }
                     else
                     {
                         adj = 0;
                     }
                 }
-                if (adj >= NInARow)
-                {
-                    return true;
-                }
+                
             }
             return false;
         }
