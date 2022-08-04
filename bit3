@@ -13,8 +13,7 @@ namespace TicTacToeConsole
         const int Cols = DefaultNum;
         const int Rows = DefaultNum;
         const int NInARow = DefaultNum;
-        /*public static List<List<int>> Diagonals = new List<List<int>>();
-        public static List<long> DiagonalOptions = new List<long>();*/
+        public static List<List<int>> Diagonals = new List<List<int>>();
         public static long[] HorizontalOptions;
         public static List<List<int>> VerticalNumbers = new List<List<int>>();
         //public static long[] VerticalOptions;
@@ -77,7 +76,7 @@ namespace TicTacToeConsole
             return (long)(1 << idx);
         }
        
-        /*static void antidiagonal(int[,] A)
+        public static void antidiagonal(int[,] A)
         {
            
             // For each column start row is 0
@@ -118,21 +117,12 @@ namespace TicTacToeConsole
                     Diagonals.Add(myDiagonal);
                 }
             }
-        }*/
-        /*public static void GetDiagonalOptions()
+        }
+        public static void GetDiagonalOptions()
         {
             int[,] matrix = GetMatrix();
             antidiagonal(matrix);
             diagonal(matrix);
-            foreach (List<int> diag in Diagonals)
-            {
-                long diagLong = 0;
-                foreach (int num in diag)
-                {
-                    diagLong |= (long)(1 << num);
-                }
-                DiagonalOptions.Add(diagLong);
-            }
         }
         static void diagonal(int[,] A)
         {
@@ -190,7 +180,7 @@ namespace TicTacToeConsole
 
             }
             return myMatrix;
-        }*/
+        }
         public static void GetVerticalNumbers()
         {
             List<List<int>> vertical = new List<List<int>>();
@@ -248,6 +238,7 @@ namespace TicTacToeConsole
                     return true;
                 }
             }
+            //check vertical
             foreach (List<int> column in VerticalNumbers)
             {
                 int adj = 0;
@@ -267,10 +258,27 @@ namespace TicTacToeConsole
                     return true;
                 }
             }
-
+            //check diagonals
+            foreach (List<int> diagonal in Diagonals)
+            {
+                int adj = 0;
+                foreach (int value in diagonal)
+                {
+                    if ((marks & (1 << value)) != 0)
+                    {
+                        adj++;
+                    }
+                    else
+                    {
+                        adj = 0;
+                    }
+                }
+                if (adj >= NInARow)
+                {
+                    return true;
+                }
+            }
             return false;
-            //check vertical win
-
         }
         public static void GenerateNewLineMask()
         {
@@ -333,7 +341,7 @@ namespace TicTacToeConsole
                 idx++;
             }
             Values = myValues;
-
+            GetDiagonalOptions();
             GetVerticalNumbers();
             foreach (List<int> list in VerticalNumbers) { 
                 foreach (int num in list)
